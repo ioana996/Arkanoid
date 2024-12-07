@@ -1,53 +1,81 @@
-const platform = document.getElementById("platform");
-const platformPosition = platform.getBoundingClientRect();
-
 const container = document.getElementById("game-container");
-const containerPosition = container.getBoundingClientRect();
-platform.style.left = containerPosition.width / 2 - 80 + "px";
-let currentPosition = platform.style.left;
+const platform = document.getElementById("platform");
+const ball = document.getElementById("ball");
 
-document.addEventListener("keydown", (event) => {
+const containerPosition = container.getBoundingClientRect();
+
+let gameLoopID;
+let moveUp;
+
+let currentPlatformPosition = containerPosition.width / 2 - 80;
+let initialBallX = containerPosition.width / 2 - 10;
+let initialBallY = containerPosition.height - 60;
+let ballX, ballY;
+
+const updateBallPosition = (x, y) => {
+  ball.style.left = x + "px";
+  ball.style.top = y + "px";
+};
+
+const updatePlatformPosition = (x) => {
+  platform.style.left = x + "px";
+};
+
+const initGameStatus = () => {
+  moveUp = true;
+  gameLoopID = undefined;
+
+  ballX = initialBallX;
+  ballY = initialBallY;
+  updateBallPosition(ballX, ballY);
+  updatePlatformPosition(currentPlatformPosition);
+};
+
+function moveBall() {
+  if (moveUp) {
+    ballX += 1;
+    ballY -= 1;
+  } else {
+    ballX -= 1;
+    ballY += 1;
+  }
+
+  if (ballY <= 0 || ballX > containerPosition.width) {
+    moveUp = false;
+  }
+  if (ballY >= initialBallY) {
+    clearInterval(gameLoopID);
+    initGameStatus();
+  }
+
+  updateBallPosition(ballX, ballY);
+}
+
+const listenForPlatformChanges = (event) => {
   if (event.code === "ArrowRight") {
-    if (parseInt(currentPosition) < containerPosition.width - 160) {
-      currentPosition = parseFloat(currentPosition) + 40 + "px";
+    if (currentPlatformPosition < containerPosition.width - 160) {
+      currentPlatformPosition += 40;
     }
   }
   if (event.code === "ArrowLeft") {
-    if (parseInt(currentPosition) > 0) {
-      currentPosition = parseFloat(currentPosition) - 40 + "px";
+    if (currentPlatformPosition > 0) {
+      currentPlatformPosition -= 40;
     }
   }
-  platform.style.left = currentPosition;
-});
+  updatePlatformPosition(currentPlatformPosition);
+};
 
-const ball = document.getElementById("ball");
-ball.style.left = containerPosition.width / 2 - 10 + "px";
-ball.style.top = containerPosition.height - 60 + "px";
-let previousXPosition = parseFloat(ball.style.left);
-let previousYPosition = parseFloat(ball.style.top);
-
-function moveBall() {
-  if (ball.style.left < 1280 - 20) {
-    ball.style.left = previousXPosition + 1 + "px";
-  } else {
-    ball.style.left = previousXPosition - 1 + "px";
+const listenForBallChanges = (event) => {
+  if (event.code === "Space") {
+    if (!gameLoopID) {
+      gameLoopID = setInterval(moveBall, 1);
+    }
   }
-
-  if (ball.style.top > 0) {
-    ball.style.top = previousYPosition - 1 + "px";
-  } else {
-    ball.style.top = previousYPosition + 1 + "px";
-  }
-
-  //   ball.style.left = previousXPosition + 1 + "px";
-  //   ball.style.top = previousYPosition - 1 + "px";
-
-  previousXPosition = parseFloat(ball.style.left);
-  previousYPosition = parseFloat(ball.style.top);
-}
+};
 
 document.addEventListener("keydown", (event) => {
-  if (event.code === "Space") {
-    setInterval(moveBall, 1);
-  }
+  listenForPlatformChanges(event);
+  listenForBallChanges(event);
 });
+
+initGameStatus();
