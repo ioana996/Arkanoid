@@ -5,12 +5,13 @@ const ball = document.getElementById("ball");
 const containerPosition = container.getBoundingClientRect();
 
 let gameLoopID;
-let moveUp;
 
 let currentPlatformPosition = containerPosition.width / 2 - 80;
 let initialBallX = containerPosition.width / 2 - 10;
 let initialBallY = containerPosition.height - 60;
 let ballX, ballY;
+let XDirection;
+let YDirection;
 
 const updateBallPosition = (x, y) => {
   ball.style.left = x + "px";
@@ -22,31 +23,31 @@ const updatePlatformPosition = (x) => {
 };
 
 const initGameStatus = () => {
-  moveUp = true;
   gameLoopID = undefined;
 
   ballX = initialBallX;
   ballY = initialBallY;
+  XDirection = 1;
+  YDirection = -1;
   updateBallPosition(ballX, ballY);
   updatePlatformPosition(currentPlatformPosition);
 };
 
 function moveBall() {
-  if (moveUp) {
-    ballX += 1;
-    ballY -= 1;
-  } else {
-    ballX -= 1;
-    ballY += 1;
+  if (ballX >= containerPosition.width || ballX <= 0) {
+    XDirection = -XDirection;
+  }
+  if (ballY <= 0) {
+    YDirection = -YDirection;
   }
 
-  if (ballY <= 0 || ballX > containerPosition.width) {
-    moveUp = false;
-  }
-  if (ballY >= initialBallY) {
+  if (ballY >= containerPosition.height) {
     clearInterval(gameLoopID);
     initGameStatus();
   }
+
+  ballX += XDirection;
+  ballY += YDirection;
 
   updateBallPosition(ballX, ballY);
 }
