@@ -1,6 +1,8 @@
 const container = document.getElementById("game-container");
 const platform = document.getElementById("platform");
 const ball = document.getElementById("ball");
+const initialBricks = document.getElementsByClassName("brick");
+const livesLeft = document.getElementById("lives");
 
 const containerPosition = container.getBoundingClientRect();
 const BRICK_WIDTH = 80;
@@ -17,6 +19,11 @@ let XDirection;
 let YDirection;
 // let bricksPositions;
 let bricks;
+let lives;
+let gameOn;
+
+// let clonedBricks = Array.from(initialBricks);
+// console.log("array", clonedBricks);
 
 const initBallCoordinates = () => {
   ballX = initialBallX;
@@ -50,14 +57,26 @@ const updatePlatformPosition = (x) => {
   platform.style.left = x + "px";
 };
 
+const restartGame = () => {
+  gameOn = true;
+  lives = 5;
+  livesLeft.textContent = lives;
+  initGameStatus();
+};
+
 const initGameStatus = () => {
   gameLoopID = undefined;
   platformX = initialPlatformX;
+  // if (!gameOn) {
+  //   console.log("restart game");
+  //   restartGame();
+  // }
 
   initBallCoordinates();
   initiBallDirection();
-
-  bricks = Array.from(document.getElementsByClassName("brick"));
+  bricks = Array.from(initialBricks);
+  // bricks = _.cloneDeep(clonedBricks);
+  // console.log("cloned ", bricks);
   // bricksPositions = bricks.map((brick) => brick.getBoundingClientRect());
   updateBricksPositions();
 
@@ -155,22 +174,27 @@ const checkBallAndBrickCollisions = () => {
       if (isTopCollision(brick)) {
         bricks[i].style.display = "none";
         YDirection = -YDirection;
+        break;
       }
       if (isBottomColision(brick)) {
         bricks[i].style.display = "none";
         YDirection = -YDirection;
+        break;
       }
       if (isRightCollision(brick)) {
         bricks[i].style.display = "none";
         XDirection = -XDirection;
+        break;
       }
       if (isLeftCollision(brick)) {
         bricks[i].style.display = "none";
         XDirection = -XDirection;
+        break;
       }
       if (isCornerCollision(brick)) {
         bricks[i].style.display = "none";
         XDirection = -XDirection;
+        break;
       }
     }
   }
@@ -196,9 +220,15 @@ function moveBall() {
     }
   }
 
-  if (ballY >= containerPosition.height) {
+  if (ballY === containerPosition.height && lives > 0) {
+    lives--;
+    livesLeft.textContent = lives;
     clearInterval(gameLoopID);
     initGameStatus();
+  }
+  if (lives === 0) {
+    gameOn = false;
+    restartGame();
   }
 }
 
@@ -236,4 +266,4 @@ document.addEventListener("keydown", (event) => {
   listenForBallChanges(event);
 });
 
-initGameStatus();
+restartGame();

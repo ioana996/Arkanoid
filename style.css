@@ -60,3 +60,11 @@ body {
 .color-2 {
   background-color: green;
 }
+
+.lives {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  color: red;
+  font-size: 28px;
+}
