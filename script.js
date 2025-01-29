@@ -1,8 +1,11 @@
 const container = document.getElementById("game-container");
-const platform = document.getElementById("platform");
-const ball = document.getElementById("ball");
-const initialBricks = document.getElementsByClassName("brick");
-const livesLeft = document.getElementById("lives");
+// const platform = document.getElementById("platform");
+// const ball = document.getElementById("ball");
+// const livesLeft = document.getElementById("lives");
+// const initialBricks = document.getElementsByClassName("brick");
+let platform;
+let ball;
+let livesLeft;
 
 const containerPosition = container.getBoundingClientRect();
 const BRICK_WIDTH = 80;
@@ -22,8 +25,37 @@ let bricks;
 let lives;
 let gameOn;
 
-// let clonedBricks = Array.from(initialBricks);
-// console.log("array", clonedBricks);
+const createHtmlElement = (elementName) => {
+  const element = document.createElement("div");
+  element.className = elementName;
+  element.id = elementName;
+  container.appendChild(element);
+};
+
+const createBricks = () => {
+  container.innerHTML = "";
+  createHtmlElement("ball");
+  createHtmlElement("platform");
+  createHtmlElement("lives");
+
+  for (let row = 0; row < 2; row++) {
+    for (let col = 0; col < 12; col++) {
+      const brick = document.createElement("div");
+      brick.classList.add("brick");
+      if ((col + row) % 2 === 0) {
+        brick.classList.add("color-2");
+      } else {
+        brick.classList.add("color-1");
+      }
+      if (row === 0) {
+        brick.classList.add("row-1");
+      } else {
+        brick.classList.add("row-2");
+      }
+      container.appendChild(brick);
+    }
+  }
+};
 
 const initBallCoordinates = () => {
   ballX = initialBallX;
@@ -59,8 +91,19 @@ const updatePlatformPosition = (x) => {
 
 const restartGame = () => {
   gameOn = true;
+  createBricks();
+  platform = document.getElementById("platform");
+  ball = document.getElementById("ball");
+  livesLeft = document.getElementById("lives");
   lives = 5;
   livesLeft.textContent = lives;
+
+  // let clonedBricks = Array.from(initialBricks);
+  // bricks = clonedBricks.forEach((brick) => {
+  //   return brick.cloneNode(true);
+  // });
+  // bricks.forEach((clone) => container.appendChild(clone));
+  bricks = Array.from(document.getElementsByClassName("brick"));
   initGameStatus();
 };
 
@@ -74,7 +117,6 @@ const initGameStatus = () => {
 
   initBallCoordinates();
   initiBallDirection();
-  bricks = Array.from(initialBricks);
   // bricks = _.cloneDeep(clonedBricks);
   // console.log("cloned ", bricks);
   // bricksPositions = bricks.map((brick) => brick.getBoundingClientRect());
