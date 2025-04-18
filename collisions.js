@@ -1,5 +1,43 @@
 import { BRICK_HEIGHT, BRICK_WIDTH, BALL_WIDTH } from "./constants.js";
-import { getBall, getXDirection, getYDirection } from "./script.js";
+import { getBall, getBallXDirection, getBallYDirection } from "./script.js";
+import { setBallXDirection, setBallYDirection } from "./script.js";
+
+export const checkBallAndBrickCollisions = (
+  bricks,
+  ballXDirection,
+  ballYDirection
+) => {
+  for (let i = 0; i < bricks.length; i++) {
+    const brick = bricks[i];
+    if (isInsideCollisionZone(brick)) {
+      if (isTopCollision(brick)) {
+        bricks[i].style.display = "none";
+        setBallYDirection(-ballYDirection);
+        break;
+      }
+      if (isBottomColision(brick)) {
+        bricks[i].style.display = "none";
+        setBallYDirection(-ballYDirection);
+        break;
+      }
+      if (isRightCollision(brick)) {
+        bricks[i].style.display = "none";
+        setBallXDirection(-ballXDirection);
+        break;
+      }
+      if (isLeftCollision(brick)) {
+        bricks[i].style.display = "none";
+        setBallXDirection(-ballXDirection);
+        break;
+      }
+      if (isCornerCollision(brick)) {
+        bricks[i].style.display = "none";
+        setBallXDirection(-ballXDirection);
+        break;
+      }
+    }
+  }
+};
 
 export const isInsideCollisionZone = (brick) => {
   /* considers that each brick has a collision zone which is the area of the brick
@@ -19,7 +57,7 @@ export const isInsideCollisionZone = (brick) => {
 
 export const isTopCollision = (brick) => {
   const ball = getBall();
-  const YDirection = getYDirection();
+  const YDirection = getBallYDirection();
 
   if (
     ball.offsetTop + BALL_WIDTH >= brick.offsetTop &&
@@ -34,7 +72,7 @@ export const isTopCollision = (brick) => {
 
 export const isBottomColision = (brick) => {
   const ball = getBall();
-  const YDirection = getYDirection();
+  const YDirection = getBallYDirection();
 
   if (
     ball.offsetTop <= brick.offsetTop + BRICK_HEIGHT &&
@@ -49,7 +87,7 @@ export const isBottomColision = (brick) => {
 
 export const isRightCollision = (brick) => {
   const ball = getBall();
-  const XDirection = getXDirection();
+  const XDirection = getBallXDirection();
 
   if (
     ball.offsetLeft <= brick.offsetLeft + BRICK_WIDTH &&
@@ -64,7 +102,7 @@ export const isRightCollision = (brick) => {
 
 export const isLeftCollision = (brick) => {
   const ball = getBall();
-  const XDirection = getXDirection();
+  const XDirection = getBallXDirection();
 
   if (
     ball.offsetLeft + BALL_WIDTH >= brick.offsetLeft &&

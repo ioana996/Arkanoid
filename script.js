@@ -1,20 +1,16 @@
-import {
-  isBottomColision,
-  isCornerCollision,
-  isInsideCollisionZone,
-  isLeftCollision,
-  isRightCollision,
-  isTopCollision,
-} from "./collisions.js";
+import { checkBallAndBrickCollisions } from "./collisions.js";
 import { createGameBoard } from "./board.js";
 import { drawBall, drawBricks, drawPlatform } from "./draw.js";
+import { PLATFORM_WIDTH, BALL_WIDTH, BALL_Y_POSITION } from "./constants.js";
 
 const gameContainer = document.getElementById("game-container");
 const gameContainerPosition = gameContainer.getBoundingClientRect();
 
-let initialPlatformX = gameContainerPosition.width / 2 - 80;
-let initialBallX = gameContainerPosition.width / 2 - 10;
-let initialBallY = gameContainerPosition.height - 60;
+const INITIAL_PLATFORM_X_POSITION =
+  gameContainerPosition.width / 2 - PLATFORM_WIDTH / 2;
+const INITIAL_BALL_X_POSITION =
+  gameContainerPosition.width / 2 - BALL_WIDTH / 2;
+const INITIAL_BALL_Y_POSITION = gameContainerPosition.height - BALL_Y_POSITION;
 
 let platform;
 let platformX;
@@ -25,8 +21,8 @@ let ballX, ballY;
 let lives;
 let livesLeft;
 
-let XDirection;
-let YDirection;
+let ballXDirection;
+let ballYDirection;
 
 let bricks;
 
@@ -37,22 +33,20 @@ export const getBall = () => {
   return ball;
 };
 
-export const getXDirection = () => {
-  return XDirection;
+export const getBallXDirection = () => {
+  return ballXDirection;
 };
 
-export const getYDirection = () => {
-  return YDirection;
+export const getBallYDirection = () => {
+  return ballYDirection;
 };
 
-const initBallCoordinates = () => {
-  ballX = initialBallX;
-  ballY = initialBallY;
+export const setBallXDirection = (xDirection) => {
+  ballXDirection = xDirection;
 };
 
-const initiBallDirection = () => {
-  XDirection = 1;
-  YDirection = -1;
+export const setBallYDirection = (yDirection) => {
+  ballYDirection = yDirection;
 };
 
 const restartGame = () => {
@@ -68,69 +62,49 @@ const restartGame = () => {
   initGameStatus();
 };
 
+const initBallCoordinates = () => {
+  ballX = INITIAL_BALL_X_POSITION;
+  ballY = INITIAL_BALL_Y_POSITION;
+};
+
+const initiBallDirection = () => {
+  ballXDirection = 1;
+  ballYDirection = -1;
+};
+
 const initGameStatus = () => {
   gameLoopID = undefined;
-  platformX = initialPlatformX;
+  platformX = INITIAL_PLATFORM_X_POSITION;
 
   initBallCoordinates();
   initiBallDirection();
 
   drawBricks(bricks);
-
   drawBall(ball, ballX, ballY);
   drawPlatform(platform, platformX);
 };
 
-export const checkBallAndBrickCollisions = () => {
-  for (let i = 0; i < bricks.length; i++) {
-    const brick = bricks[i];
-    if (isInsideCollisionZone(brick)) {
-      if (isTopCollision(brick)) {
-        bricks[i].style.display = "none";
-        YDirection = -YDirection;
-        break;
-      }
-      if (isBottomColision(brick)) {
-        bricks[i].style.display = "none";
-        YDirection = -YDirection;
-        break;
-      }
-      if (isRightCollision(brick)) {
-        bricks[i].style.display = "none";
-        XDirection = -XDirection;
-        break;
-      }
-      if (isLeftCollision(brick)) {
-        bricks[i].style.display = "none";
-        XDirection = -XDirection;
-        break;
-      }
-      if (isCornerCollision(brick)) {
-        bricks[i].style.display = "none";
-        XDirection = -XDirection;
-        break;
-      }
-    }
-  }
-};
-
 function moveBall() {
-  checkBallAndBrickCollisions();
+  checkBallAndBrickCollisions(bricks, ballXDirection, ballYDirection);
 
-  ballX += XDirection;
-  ballY += YDirection;
+  ballX += ballXDirection;
+  ballY += ballYDirection;
 
   drawBall(ball, ballX, ballY);
 
-  if (ballY === initialBallY && ballX > platformX && ballX < platformX + 160) {
-    YDirection = -YDirection;
+  if (
+    ballY === INITIAL_BALL_Y_POSITION &&
+    ballX > platformX &&
+    ballX < platformX + 160
+  ) {
+    ballYDirection = -ballYDirection;
   } else {
     if (ballX >= gameContainerPosition.width || ballX <= 0) {
-      XDirection = -XDirection;
+      ballXDirection = -ballXDirection;
     }
 
     if (ballY <= 0) {
-      YDirection = -YDirection;
+      ballYDirection = -ballYDirection;
     }
   }
 
@@ -150,7 +124,7 @@ const listenForPlatformChanges = (event) => {
   if (event.code === "ArrowRight") {
     if (platformX < gameContainerPosition.width - 160) {
       platformX += 40;
-      if (ballY === initialBallY) {
+      if (ballY === INITIAL_BALL_Y_POSITION) {
         ballX += 40;
       }
     }
@@ -158,7 +132,7 @@ const listenForPlatformChanges = (event) => {
   if (event.code === "ArrowLeft") {
     if (platformX > 0) {
       platformX -= 40;
-      if (ballY === initialBallY) {
+      if (ballY === INITIAL_BALL_Y_POSITION) {
         ballX -= 40;
       }
     }
