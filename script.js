@@ -1,16 +1,20 @@
+import {
+  isBottomColision,
+  isCornerCollision,
+  isInsideCollisionZone,
+  isLeftCollision,
+  isRightCollision,
+  isTopCollision,
+} from "./collisions.js";
+import { BRICK_WIDTH } from "./constants.js";
+
 const container = document.getElementById("game-container");
-// const platform = document.getElementById("platform");
-// const ball = document.getElementById("ball");
-// const livesLeft = document.getElementById("lives");
-// const initialBricks = document.getElementsByClassName("brick");
+
 let platform;
 let ball;
 let livesLeft;
 
 const containerPosition = container.getBoundingClientRect();
-const BRICK_WIDTH = 80;
-const BALL_WIDTH = 20;
-const BRICK_HEIGHT = 40;
 
 let gameLoopID;
 let platformX;
@@ -20,10 +24,21 @@ let initialBallY = containerPosition.height - 60;
 let ballX, ballY;
 let XDirection;
 let YDirection;
-// let bricksPositions;
 let bricks;
 let lives;
 let gameOn;
+
+export const getBall = () => {
+  return ball;
+};
+
+export const getXDirection = () => {
+  return XDirection;
+};
+
+export const getYDirection = () => {
+  return YDirection;
+};
 
 const createHtmlElement = (elementName) => {
   const element = document.createElement("div");
@@ -98,11 +113,6 @@ const restartGame = () => {
   lives = 5;
   livesLeft.textContent = lives;
 
-  // let clonedBricks = Array.from(initialBricks);
-  // bricks = clonedBricks.forEach((brick) => {
-  //   return brick.cloneNode(true);
-  // });
-  // bricks.forEach((clone) => container.appendChild(clone));
   bricks = Array.from(document.getElementsByClassName("brick"));
   initGameStatus();
 };
@@ -110,106 +120,17 @@ const restartGame = () => {
 const initGameStatus = () => {
   gameLoopID = undefined;
   platformX = initialPlatformX;
-  // if (!gameOn) {
-  //   console.log("restart game");
-  //   restartGame();
-  // }
 
   initBallCoordinates();
   initiBallDirection();
-  // bricks = _.cloneDeep(clonedBricks);
-  // console.log("cloned ", bricks);
-  // bricksPositions = bricks.map((brick) => brick.getBoundingClientRect());
+
   updateBricksPositions();
 
   updateBallPosition(ballX, ballY);
   updatePlatformPosition(platformX);
 };
 
-const isInsideCollisionZone = (brick) => {
-  /* considers that each brick has a collision zone which is the area of the brick
-  plus the radius of the ball */
-  if (
-    ball.offsetLeft >= brick.offsetLeft - BALL_WIDTH &&
-    ball.offsetLeft + BALL_WIDTH <=
-      brick.offsetLeft + BRICK_WIDTH + BALL_WIDTH &&
-    ball.offsetTop >= brick.offsetTop - BALL_WIDTH &&
-    ball.offsetTop + BALL_WIDTH <= brick.offsetTop + BRICK_HEIGHT + BALL_WIDTH
-  ) {
-    return true;
-  }
-  return false;
-};
-
-const isTopCollision = (brick) => {
-  if (
-    ball.offsetTop + BALL_WIDTH >= brick.offsetTop &&
-    ball.offsetLeft + BALL_WIDTH / 2 >= brick.offsetLeft &&
-    ball.offsetLeft + BALL_WIDTH / 2 <= brick.offsetLeft + BRICK_WIDTH &&
-    YDirection > 0
-  ) {
-    return true;
-  }
-  return false;
-};
-
-const isBottomColision = (brick) => {
-  if (
-    ball.offsetTop <= brick.offsetTop + BRICK_HEIGHT &&
-    ball.offsetLeft + BALL_WIDTH / 2 >= brick.offsetLeft &&
-    ball.offsetLeft + BALL_WIDTH / 2 <= brick.offsetLeft + BRICK_WIDTH &&
-    YDirection < 0
-  ) {
-    return true;
-  }
-  return false;
-};
-
-const isRightCollision = (brick) => {
-  if (
-    ball.offsetLeft <= brick.offsetLeft + BRICK_WIDTH &&
-    ball.offsetTop - BALL_WIDTH / 2 >= brick.offsetTop &&
-    ball.offsetTop + BALL_WIDTH / 2 <= brick.offsetTop + BRICK_HEIGHT &&
-    XDirection < 0
-  ) {
-    return true;
-  }
-  return false;
-};
-
-const isLeftCollision = (brick) => {
-  if (
-    ball.offsetLeft + BALL_WIDTH >= brick.offsetLeft &&
-    ball.offsetTop - BALL_WIDTH / 2 >= brick.offsetTop &&
-    ball.offsetTop + BALL_WIDTH / 2 <= brick.offsetTop + BRICK_HEIGHT &&
-    XDirection > 0
-  ) {
-    return true;
-  }
-  return false;
-};
-
-const isCornerCollision = (brick) => {
-  if (
-    // bottom right collision
-    (ball.offsetLeft + BALL_WIDTH / 2 === brick.offsetLeft + BRICK_WIDTH &&
-      ball.offsetTop + BALL_WIDTH / 2 === brick.offsetTop + BRICK_HEIGHT) ||
-    // top right collision
-    (ball.offsetLeft + BALL_WIDTH / 2 === brick.offsetLeft + BRICK_WIDTH &&
-      ball.offsetTop + BALL_WIDTH / 2 === brick.offsetTop) ||
-    // top left collision
-    (ball.offsetLeft + BALL_WIDTH / 2 === brick.offsetLeft &&
-      ball.offsetTop + BALL_WIDTH / 2 === brick.offsetTop) ||
-    // left bottom collision
-    (ball.offsetLeft + BALL_WIDTH / 2 === brick.offsetLeft &&
-      ball.offsetTop + BALL_WIDTH / 2 === brick.offsetTop + BRICK_HEIGHT)
-  ) {
-    return true;
-  }
-  return false;
-};
-
-const checkBallAndBrickCollisions = () => {
+export const checkBallAndBrickCollisions = () => {
   for (let i = 0; i < bricks.length; i++) {
     const brick = bricks[i];
     if (isInsideCollisionZone(brick)) {
