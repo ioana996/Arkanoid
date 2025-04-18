@@ -7,20 +7,20 @@ import {
   isTopCollision,
 } from "./collisions.js";
 import { BRICK_WIDTH } from "./constants.js";
+import { createGameBoard } from "./board.js";
 
-const container = document.getElementById("game-container");
+const gameContainer = document.getElementById("game-container");
+const gameContainerPosition = gameContainer.getBoundingClientRect();
+
+let initialPlatformX = gameContainerPosition.width / 2 - 80;
+let initialBallX = gameContainerPosition.width / 2 - 10;
+let initialBallY = gameContainerPosition.height - 60;
 
 let platform;
 let ball;
 let livesLeft;
-
-const containerPosition = container.getBoundingClientRect();
-
 let gameLoopID;
 let platformX;
-let initialPlatformX = containerPosition.width / 2 - 80;
-let initialBallX = containerPosition.width / 2 - 10;
-let initialBallY = containerPosition.height - 60;
 let ballX, ballY;
 let XDirection;
 let YDirection;
@@ -38,38 +38,6 @@ export const getXDirection = () => {
 
 export const getYDirection = () => {
   return YDirection;
-};
-
-const createHtmlElement = (elementName) => {
-  const element = document.createElement("div");
-  element.className = elementName;
-  element.id = elementName;
-  container.appendChild(element);
-};
-
-const createBricks = () => {
-  container.innerHTML = "";
-  createHtmlElement("ball");
-  createHtmlElement("platform");
-  createHtmlElement("lives");
-
-  for (let row = 0; row < 2; row++) {
-    for (let col = 0; col < 12; col++) {
-      const brick = document.createElement("div");
-      brick.classList.add("brick");
-      if ((col + row) % 2 === 0) {
-        brick.classList.add("color-2");
-      } else {
-        brick.classList.add("color-1");
-      }
-      if (row === 0) {
-        brick.classList.add("row-1");
-      } else {
-        brick.classList.add("row-2");
-      }
-      container.appendChild(brick);
-    }
-  }
 };
 
 const initBallCoordinates = () => {
@@ -106,7 +74,7 @@ const updatePlatformPosition = (x) => {
 
 const restartGame = () => {
   gameOn = true;
-  createBricks();
+  createGameBoard(gameContainer);
   platform = document.getElementById("platform");
   ball = document.getElementById("ball");
   livesLeft = document.getElementById("lives");
@@ -174,7 +142,7 @@ function moveBall() {
   if (ballY === initialBallY && ballX > platformX && ballX < platformX + 160) {
     YDirection = -YDirection;
   } else {
-    if (ballX >= containerPosition.width || ballX <= 0) {
+    if (ballX >= gameContainerPosition.width || ballX <= 0) {
       XDirection = -XDirection;
     }
 
@@ -183,7 +151,7 @@ function moveBall() {
     }
   }
 
-  if (ballY === containerPosition.height && lives > 0) {
+  if (ballY === gameContainerPosition.height && lives > 0) {
     lives--;
     livesLeft.textContent = lives;
     clearInterval(gameLoopID);
@@ -197,7 +165,7 @@ function moveBall() {
 
 const listenForPlatformChanges = (event) => {
   if (event.code === "ArrowRight") {
-    if (platformX < containerPosition.width - 160) {
+    if (platformX < gameContainerPosition.width - 160) {
       platformX += 40;
       if (ballY === initialBallY) {
         ballX += 40;
