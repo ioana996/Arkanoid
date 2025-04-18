@@ -6,8 +6,8 @@ import {
   isRightCollision,
   isTopCollision,
 } from "./collisions.js";
-import { BRICK_WIDTH } from "./constants.js";
 import { createGameBoard } from "./board.js";
+import { drawBall, drawBricks, drawPlatform } from "./draw.js";
 
 const gameContainer = document.getElementById("game-container");
 const gameContainerPosition = gameContainer.getBoundingClientRect();
@@ -17,15 +17,20 @@ let initialBallX = gameContainerPosition.width / 2 - 10;
 let initialBallY = gameContainerPosition.height - 60;
 
 let platform;
-let ball;
-let livesLeft;
-let gameLoopID;
 let platformX;
+
+let ball;
 let ballX, ballY;
+
+let lives;
+let livesLeft;
+
 let XDirection;
 let YDirection;
+
 let bricks;
-let lives;
+
+let gameLoopID;
 let gameOn;
 
 export const getBall = () => {
@@ -50,28 +55,6 @@ const initiBallDirection = () => {
   YDirection = -1;
 };
 
-const updateBricksPositions = () => {
-  let numOfBricksPerRow = 0;
-  let initialCoordinate = 2 * BRICK_WIDTH;
-  bricks.forEach((brick) => {
-    if (numOfBricksPerRow % 12 === 0) {
-      initialCoordinate = 2 * BRICK_WIDTH;
-    }
-    brick.style.left = initialCoordinate + "px";
-    initialCoordinate += BRICK_WIDTH;
-    numOfBricksPerRow++;
-  });
-};
-
-const updateBallPosition = (x, y) => {
-  ball.style.left = x + "px";
-  ball.style.top = y + "px";
-};
-
-const updatePlatformPosition = (x) => {
-  platform.style.left = x + "px";
-};
-
 const restartGame = () => {
   gameOn = true;
   createGameBoard(gameContainer);
@@ -92,10 +75,10 @@ const initGameStatus = () => {
   initBallCoordinates();
   initiBallDirection();
 
-  updateBricksPositions();
+  drawBricks(bricks);
 
-  updateBallPosition(ballX, ballY);
-  updatePlatformPosition(platformX);
+  drawBall(ball, ballX, ballY);
+  drawPlatform(platform, platformX);
 };
 
 export const checkBallAndBrickCollisions = () => {
@@ -137,7 +120,7 @@ function moveBall() {
   ballX += XDirection;
   ballY += YDirection;
 
-  updateBallPosition(ballX, ballY);
+  drawBall(ball, ballX, ballY);
 
   if (ballY === initialBallY && ballX > platformX && ballX < platformX + 160) {
     YDirection = -YDirection;
@@ -180,8 +163,8 @@ const listenForPlatformChanges = (event) => {
       }
     }
   }
-  updateBallPosition(ballX, ballY);
-  updatePlatformPosition(platformX);
+  drawBall(ball, ballX, ballY);
+  drawPlatform(platform, platformX);
 };
 
 const listenForBallChanges = (event) => {
