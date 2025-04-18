@@ -27,7 +27,6 @@ let ballYDirection;
 let bricks;
 
 let gameLoopID;
-let gameOn;
 
 export const getBall = () => {
   return ball;
@@ -49,8 +48,7 @@ export const setBallYDirection = (yDirection) => {
   ballYDirection = yDirection;
 };
 
-const restartGame = () => {
-  gameOn = true;
+const startGame = () => {
   createGameBoard(gameContainer);
   platform = document.getElementById("platform");
   ball = document.getElementById("ball");
@@ -84,39 +82,79 @@ const initGameStatus = () => {
   drawPlatform(platform, platformX);
 };
 
-function moveBall() {
-  checkBallAndBrickCollisions(bricks, ballXDirection, ballYDirection);
-
+const moveBall = () => {
   ballX += ballXDirection;
   ballY += ballYDirection;
 
   drawBall(ball, ballX, ballY);
+};
 
+const ballTouchesPlatform = () => {
   if (
     ballY === INITIAL_BALL_Y_POSITION &&
     ballX > platformX &&
     ballX < platformX + 160
   ) {
-    ballYDirection = -ballYDirection;
-  } else {
-    if (ballX >= gameContainerPosition.width || ballX <= 0) {
-      ballXDirection = -ballXDirection;
-    }
-
-    if (ballY <= 0) {
-      ballYDirection = -ballYDirection;
-    }
+    return true;
   }
+  return false;
+};
 
+const ballTouchesSideWalls = () => {
+  if (ballX >= gameContainerPosition.width || ballX <= 0) {
+    return true;
+  }
+  return false;
+};
+
+const ballTouchesTop = () => {
+  if (ballY <= 0) {
+    return true;
+  }
+  return false;
+};
+
+const changeBallDirectionOnContact = () => {
+  if (ballTouchesPlatform()) {
+    ballYDirection = -ballYDirection;
+  } else if (ballTouchesSideWalls()) {
+    ballXDirection = -ballXDirection;
+  } else if (ballTouchesTop()) {
+    ballYDirection = -ballYDirection;
+  }
+};
+
+const ballTouchesBottom = () => {
   if (ballY === gameContainerPosition.height && lives > 0) {
+    return true;
+  }
+  return false;
+};
+
+const gameIsOver = () => {
+  if (lives === 0) {
+    return true;
+  }
+  return false;
+};
+
+const checkGameStatus = () => {
+  if (ballTouchesBottom()) {
     lives--;
     livesLeft.textContent = lives;
     clearInterval(gameLoopID);
     initGameStatus();
   }
-  if (lives === 0) {
-    gameOn = false;
-    restartGame();
+};
+
+function playGame() {
+  checkBallAndBrickCollisions(bricks, ballXDirection, ballYDirection);
+  moveBall();
+  changeBallDirectionOnContact();
+  checkGameStatus();
+
+  if (gameIsOver()) {
+    startGame();
   }
 }
 
@@ -144,7 +182,7 @@ const listenForPlatformChanges = (event) => {
 const listenForBallChanges = (event) => {
   if (event.code === "Space") {
     if (!gameLoopID) {
-      gameLoopID = setInterval(moveBall, 1);
+      gameLoopID = setInterval(playGame, 1);
     }
   }
 };
@@ -154,4 +192,4 @@ document.addEventListener("keydown", (event) => {
   listenForBallChanges(event);
 });
 
-restartGame();
+startGame();
