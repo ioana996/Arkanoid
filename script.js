@@ -28,6 +28,16 @@ let bricks;
 
 let gameLoopID;
 
+const startGame = () => {
+  createGameBoard(gameContainer);
+  setPlatform();
+  setBall();
+  setLives();
+  setBricks();
+
+  initGameStatus();
+};
+
 export const getBall = () => {
   return ball;
 };
@@ -48,16 +58,22 @@ export const setBallYDirection = (yDirection) => {
   ballYDirection = yDirection;
 };
 
-const startGame = () => {
-  createGameBoard(gameContainer);
+const setPlatform = () => {
   platform = document.getElementById("platform");
+};
+
+const setBall = () => {
   ball = document.getElementById("ball");
+};
+
+const setLives = () => {
   livesLeft = document.getElementById("lives");
   lives = 5;
   livesLeft.textContent = lives;
+};
 
+const setBricks = () => {
   bricks = Array.from(document.getElementsByClassName("brick"));
-  initGameStatus();
 };
 
 const initBallCoordinates = () => {
