@@ -1,53 +1,157 @@
-const platform = document.getElementById("platform");
-const platformPosition = platform.getBoundingClientRect();
+import { checkBallAndBrickCollisions } from "./collisions.js";
+import { createGameBoard } from "./board.js";
+import { drawBall, drawBricks, drawPlatform } from "./draw.js";
+import { PLATFORM_WIDTH, BALL_WIDTH, BALL_Y_POSITION } from "./constants.js";
 
-const container = document.getElementById("game-container");
-const containerPosition = container.getBoundingClientRect();
-platform.style.left = containerPosition.width / 2 - 80 + "px";
-let currentPosition = platform.style.left;
+const gameContainer = document.getElementById("game-container");
+const gameContainerPosition = gameContainer.getBoundingClientRect();
 
-document.addEventListener("keydown", (event) => {
+const INITIAL_PLATFORM_X_POSITION =
+  gameContainerPosition.width / 2 - PLATFORM_WIDTH / 2;
+const INITIAL_BALL_X_POSITION =
+  gameContainerPosition.width / 2 - BALL_WIDTH / 2;
+const INITIAL_BALL_Y_POSITION = gameContainerPosition.height - BALL_Y_POSITION;
+
+let platform;
+let platformX;
+
+let ball;
+let ballX, ballY;
+
+let lives;
+let livesLeft;
+
+let ballXDirection;
+let ballYDirection;
+
+let bricks;
+
+let gameLoopID;
+let gameOn;
+
+export const getBall = () => {
+  return ball;
+};
+
+export const getBallXDirection = () => {
+  return ballXDirection;
+};
+
+export const getBallYDirection = () => {
+  return ballYDirection;
+};
+
+export const setBallXDirection = (xDirection) => {
+  ballXDirection = xDirection;
+};
+
+export const setBallYDirection = (yDirection) => {
+  ballYDirection = yDirection;
+};
+
+const restartGame = () => {
+  gameOn = true;
+  createGameBoard(gameContainer);
+  platform = document.getElementById("platform");
+  ball = document.getElementById("ball");
+  livesLeft = document.getElementById("lives");
+  lives = 5;
+  livesLeft.textContent = lives;
+
+  bricks = Array.from(document.getElementsByClassName("brick"));
+  initGameStatus();
+};
+
+const initBallCoordinates = () => {
+  ballX = INITIAL_BALL_X_POSITION;
+  ballY = INITIAL_BALL_Y_POSITION;
+};
+
+const initiBallDirection = () => {
+  ballXDirection = 1;
+  ballYDirection = -1;
+};
+
+const initGameStatus = () => {
+  gameLoopID = undefined;
+  platformX = INITIAL_PLATFORM_X_POSITION;
+
+  initBallCoordinates();
+  initiBallDirection();
+
+  drawBricks(bricks);
+  drawBall(ball, ballX, ballY);
+  drawPlatform(platform, platformX);
+};
+
+function moveBall() {
+  checkBallAndBrickCollisions(bricks, ballXDirection, ballYDirection);
+
+  ballX += ballXDirection;
+  ballY += ballYDirection;
+
+  drawBall(ball, ballX, ballY);
+
+  if (
+    ballY === INITIAL_BALL_Y_POSITION &&
+    ballX > platformX &&
+    ballX < platformX + 160
+  ) {
+    ballYDirection = -ballYDirection;
+  } else {
+    if (ballX >= gameContainerPosition.width || ballX <= 0) {
+      ballXDirection = -ballXDirection;
+    }
+
+    if (ballY <= 0) {
+      ballYDirection = -ballYDirection;
+    }
+  }
+
+  if (ballY === gameContainerPosition.height && lives > 0) {
+    lives--;
+    livesLeft.textContent = lives;
+    clearInterval(gameLoopID);
+    initGameStatus();
+  }
+  if (lives === 0) {
+    gameOn = false;
+    restartGame();
+  }
+}
+
+const listenForPlatformChanges = (event) => {
   if (event.code === "ArrowRight") {
-    if (parseInt(currentPosition) < containerPosition.width - 160) {
-      currentPosition = parseFloat(currentPosition) + 40 + "px";
+    if (platformX < gameContainerPosition.width - 160) {
+      platformX += 40;
+      if (ballY === INITIAL_BALL_Y_POSITION) {
+        ballX += 40;
+      }
     }
   }
   if (event.code === "ArrowLeft") {
-    if (parseInt(currentPosition) > 0) {
-      currentPosition = parseFloat(currentPosition) - 40 + "px";
+    if (platformX > 0) {
+      platformX -= 40;
+      if (ballY === INITIAL_BALL_Y_POSITION) {
+        ballX -= 40;
+      }
     }
   }
-  platform.style.left = currentPosition;
-});
+  drawBall(ball, ballX, ballY);
+  drawPlatform(platform, platformX);
+};
 
-const ball = document.getElementById("ball");
-ball.style.left = containerPosition.width / 2 - 10 + "px";
-ball.style.top = containerPosition.height - 60 + "px";
-let previousXPosition = parseFloat(ball.style.left);
-let previousYPosition = parseFloat(ball.style.top);
-
-function moveBall() {
-  if (ball.style.left < 1280 - 20) {
-    ball.style.left = previousXPosition + 1 + "px";
-  } else {
-    ball.style.left = previousXPosition - 1 + "px";
+const listenForBallChanges = (event) => {
+  if (event.code === "Space") {
+    if (!gameLoopID) {
+      gameLoopID = setInterval(moveBall, 1);
+    }
   }
-
-  if (ball.style.top > 0) {
-    ball.style.top = previousYPosition - 1 + "px";
-  } else {
-    ball.style.top = previousYPosition + 1 + "px";
-  }
-
-  //   ball.style.left = previousXPosition + 1 + "px";
-  //   ball.style.top = previousYPosition - 1 + "px";
-
-  previousXPosition = parseFloat(ball.style.left);
-  previousYPosition = parseFloat(ball.style.top);
-}
+};
 
 document.addEventListener("keydown", (event) => {
-  if (event.code === "Space") {
-    setInterval(moveBall, 1);
-  }
+  listenForPlatformChanges(event);
+  listenForBallChanges(event);
 });
+
+restartGame();

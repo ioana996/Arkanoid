@@ -28,3 +28,43 @@ body {
   border-radius: 50%;
   background-color: rgb(155, 100, 165);
 }
+
+/* .bricks { */
+/* position: absolute; */
+/* padding: 0; */
+/* width: 100%; */
+/* list-style: none; */
+/* display: grid;
+  grid-template-columns: repeat(12, 1fr); */
+/* } */
+.row-1 {
+  position: absolute;
+
+  top: 50%;
+}
+.row-2 {
+  position: absolute;
+
+  top: calc(50% - 40px);
+}
+
+.brick {
+  position: absolute;
+  margin: auto;
+  width: 80px;
+  min-height: 40px;
+}
+.color-1 {
+  background-color: blue;
+}
+.color-2 {
+  background-color: green;
+}
+
+.lives {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  color: red;
+  font-size: 28px;
+}
