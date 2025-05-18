@@ -29,14 +29,6 @@ body {
   background-color: rgb(155, 100, 165);
 }
 
-/* .bricks { */
-/* position: absolute; */
-/* padding: 0; */
-/* width: 100%; */
-/* list-style: none; */
-/* display: grid;
-  grid-template-columns: repeat(12, 1fr); */
-/* } */
 .row-1 {
   position: absolute;
 
@@ -63,8 +55,9 @@ body {
 
 .lives {
   position: absolute;
-  top: 40px;
-  right: 40px;
-  color: red;
-  font-size: 28px;
+  top: 60px;
+  right: 60px;
+  color: green;
+  font-size: 36px;
+  font-weight: bold;
 }
