@@ -1,6 +1,8 @@
 # Arkanoid
 Arkanoid game in Javascript
 
+![Gameplay Screenshot](assets/arkanoid.png)
+
 ## 🎯 Project Motivation & Description
 
 This Arkanoid game was created as a personal project to practice **vanilla JavaScript**, outside the frameworks I use in my daily work such as **React** and **Next.js**. The main goal was to revisit and strengthen my core JavaScript skills by building an interactive browser game from scratch.
