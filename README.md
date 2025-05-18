@@ -49,4 +49,50 @@ This logic mimics a simplified version of **Axis-Aligned Bounding Box (AABB)** c
 
 While basic, this method is highly effective for tile-based or grid-aligned games like Arkanoid, and it avoids the need for pixel-perfect or physics-based collision engines.
 
+## 📁 Project Structure
+
+arkanoid/
+├── index.html
+├── css/
+│   └── style.css
+├── js/
+│   ├── index.js         # Entry point and game logic
+│   ├── board.js         # Create board elements
+│   ├── collisions.js    # Collision behavior
+│   ├── constants.js     # Constant values
+└── ├── draw.js          # Drawing the game board on the screen
+
+
+- `index.html`: Loads the game and imports the JavaScript module.
+- `scripts/index.js`: Main logic of the game, organized using ES6 modules.
+- `styles/style.css`: Handles layout, visuals, and animations using pure CSS.
+
+## ⚙️ How to Run the Project
+
+Because this project uses JavaScript modules (`<script type="module">`), it must be run from an HTTP server—not opened directly from the file system.
+
+### Option 1: Using `http-server` (Node.js)
+
+1. Install the server globally (if you haven't yet):
+
+   ```bash
+   npm install -g http-server
+2. Start the server from the project root:
+3. ```bash
+   http-server .
+4. Open your browser at:
+   ```bash
+   http://localhost:8080
+
+###  Option 2: Using VS Code Live Server
+If you're using Visual Studio Code:
+
+1. Install the Live Server Extension
+
+2. Open the project folder in VS Code
+
+3. Right-click `index.html` and choose "Open with Live Server"
+
+
+
 
