@@ -1,5 +1,5 @@
 import { BRICK_HEIGHT, BRICK_WIDTH, BALL_WIDTH } from "./constants.js";
-import { gameState } from "./script.js";
+import { gameState } from "./index.js";
 
 export const checkBallAndBrickCollisions = (
   bricks,
